@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MTO Results Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #F5F6F4; color: #1B2430; }
+    header { background: #12263A; padding: 20px 32px; display: flex; align-items: center; gap: 12px; }
+    header h1 { color: #fff; font-size: 18px; font-weight: 600; }
+    header p { color: #93A3B3; font-size: 12px; font-family: monospace; }
+    main { max-width: 1100px; margin: 32px auto; padding: 0 24px; }
+    #mock-banner { background: #FBF6E3; border: 1px solid #E3D8A8; border-radius: 8px; padding: 10px 16px; font-size: 13px; color: #7A6A2E; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+    .toolbar { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+    .toolbar h2 { font-size: 20px; font-weight: 600; color: #12263A; }
+    .toolbar p { font-size: 12px; color: #7A848C; font-family: monospace; }
+    .btn { display: inline-flex; align-items: center; gap: 6px; border-radius: 6px; font-size: 13px; font-weight: 500; padding: 8px 14px; cursor: pointer; transition: all 0.15s; text-decoration: none; border: 1px solid #C7CDD1; background: #fff; color: #1B2430; }
+    .btn-primary { background: #12263A; color: #fff; border-color: #12263A; }
+    .btn-primary:hover { background: #1C3A52; }
+    .btn:hover { background: #F0F2EE; }
+    .summary-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 24px; }
+    .summary-card { background: #fff; border: 1px solid #D8DCD6; border-radius: 8px; padding: 10px 8px; text-align: center; }
+    .summary-card .val { font-size: 18px; font-weight: 600; color: #12263A; font-family: 'IBM Plex Mono', monospace; }
+    .summary-card .unit { font-size: 11px; color: #7A848C; margin-left: 2px; }
+    .summary-card .lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #9AA5AD; margin-top: 3px; }
+    .layout { display: grid; grid-template-columns: 280px 1fr; gap: 20px; }
+    .meta-panel { background: #fff; border: 1px solid #D8DCD6; border-radius: 8px; overflow: hidden; }
+    .preview { background: #F5F6F4; border-bottom: 1px solid #D8DCD6; aspect-ratio: 3/4; display: flex; align-items: center; justify-content: center; }
+    .preview img { width: 100%; height: 100%; object-fit: contain; }
+    .preview .no-prev { text-align: center; color: #9AA5AD; font-size: 13px; }
+    .meta-body { padding: 16px; }
+    .meta-body .section-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: #9AA5AD; font-family: monospace; margin-bottom: 10px; }
+    .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+    .meta-grid dt { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: #9AA5AD; }
+    .meta-grid dd { font-weight: 500; color: #1B2430; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .table-wrap { background: #fff; border: 1px solid #D8DCD6; border-radius: 8px; overflow: hidden; }
+    table { width: 100%; font-size: 12px; border-collapse: collapse; }
+    thead tr { background: #F5F6F4; }
+    th { padding: 8px 10px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #5C6773; font-weight: 500; white-space: nowrap; }
+    td { padding: 8px 10px; border-top: 1px solid #EDEFEC; font-family: 'IBM Plex Mono', monospace; }
+    tr:hover td { background: #F7F8F6; }
+    .cat-badge { display: inline-block; border-radius: 4px; padding: 2px 6px; font-size: 9px; font-weight: 500; white-space: nowrap; }
+    .cat-PIPE { background: #EAF1F4; color: #1F5C73; }
+    .cat-FITTING { background: #F0EEE4; color: #7A6A2E; }
+    .cat-FLANGE { background: #EEEBF6; color: #5C4C9E; }
+    .cat-VALVE { background: #FBEAE6; color: #A34632; }
+    .cat-GASKET { background: #EDF3E6; color: #4C7A2E; }
+    .cat-BOLT { background: #EDF3E6; color: #4C7A2E; }
+    .cat-SUPPORT { background: #F1F1F1; color: #5A5A5A; }
+    .conf { display: inline-block; border-radius: 3px; padding: 2px 5px; font-size: 10px; font-weight: 600; }
+    .conf-high { background: #E8F5EE; color: #1E6B47; }
+    .conf-mid { background: #FDF3DC; color: #8A5E0A; }
+    .conf-low { background: #FBE9E4; color: #8B3120; }
+    .conf-na { background: #F1F2F0; color: #9AA5AD; }
+    .remark { font-size: 10px; color: #9AA5AD; font-style: italic; margin-top: 2px; }
+    #status { text-align: center; padding: 40px; color: #7A848C; font-size: 14px; }
+    .spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid #D8DCD6; border-top-color: #2E6F95; border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 8px; vertical-align: middle; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Isometric → MTO Generator</h1>
+    <p>one drawing in — a validated bill of materials out</p>
+  </div>
+</header>
+<main>
+  <div id="status"><span class="spinner"></span>Fetching mock MTO from backend…</div>
+  <div id="result" style="display:none"></div>
+</main>
+<script>
+const API = 'http://localhost:8000';
+
+// Fetch mock MTO by sending a minimal 1x1 white PNG
+async function fetchMock() {
+  // Minimal 1x1 white PNG (base64-encoded)
+  const png1x1 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADhQGAWjR9awAAAABJRU5ErkJggg==';
+  const binaryStr = atob(png1x1);
+  const bytes = new Uint8Array(binaryStr.length);
+  for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
+  const blob = new Blob([bytes], { type: 'image/png' });
+  const fd = new FormData();
+  fd.append('file', blob, 'demo.png');
+  const res = await fetch(`${API}/api/extract`, { method: 'POST', body: fd });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+function confClass(c) {
+  if (c == null) return 'conf-na';
+  if (c >= 0.85) return 'conf-high';
+  if (c >= 0.65) return 'conf-mid';
+  return 'conf-low';
+}
+
+function confLabel(c) {
+  if (c == null) return 'n/a';
+  return Math.round(c * 100) + '%';
+}
+
+function metaVal(v) {
+  return v || '<span style="color:#C7CDD1">—</span>';
+}
+
+fetchMock().then(data => {
+  document.getElementById('status').style.display = 'none';
+  const r = document.getElementById('result');
+  r.style.display = 'block';
+  const m = data.drawing_meta || {};
+  const s = data.summary || {};
+  const items = data.items || [];
+
+  const summaryCards = [
+    { label: 'Pipe length', value: s.total_pipe_length_m, unit: 'm' },
+    { label: 'Fittings', value: s.fittings },
+    { label: 'Flanges', value: s.flanges },
+    { label: 'Valves', value: s.valves },
+    { label: 'Gaskets', value: s.gaskets },
+    { label: 'Bolt sets', value: s.bolt_sets },
+    { label: 'Field welds', value: s.field_welds },
+  ];
+
+  const rows = items.map((it, i) => {
+    const qty = it.category === 'PIPE' ? (it.length_m ?? it.quantity) : it.quantity;
+    const unit = it.category === 'PIPE' ? 'M' : it.unit;
+    return `<tr>
+      <td style="color:#9AA5AD">${it.item_no}</td>
+      <td><span class="cat-badge cat-${it.category}">${it.category}</span></td>
+      <td>
+        <div>${it.description}</div>
+        ${it.remarks ? `<div class="remark">${it.remarks}</div>` : ''}
+      </td>
+      <td>${it.size_nps || '—'}</td>
+      <td>${it.schedule_rating || '—'}</td>
+      <td>${it.material_spec || '—'}</td>
+      <td>${it.end_type || '—'}</td>
+      <td style="text-align:right">${qty}</td>
+      <td>${unit}</td>
+      <td style="text-align:center"><span class="conf ${confClass(it.confidence)}">${confLabel(it.confidence)}</span></td>
+    </tr>`;
+  }).join('');
+
+  r.innerHTML = `
+    ${data.mock ? `
+    <div id="mock-banner">
+      ⚠️ <strong>Mock data</strong> — no GEMINI_API_KEY set on the server. Set it for live AI extraction.
+    </div>` : ''}
+    <div class="toolbar">
+      <div>
+        <h2>Extraction complete</h2>
+        <p>demo.png (mock pipeline)</p>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <a href="#" class="btn">↓ Export CSV</a>
+        <a href="#" class="btn">⊞ Export Excel</a>
+        <a href="http://localhost:3000" class="btn btn-primary">↺ New drawing</a>
+      </div>
+    </div>
+    <div class="summary-grid">
+      ${summaryCards.map(c => `
+        <div class="summary-card">
+          <div class="val">${c.value}${c.unit ? `<span class="unit">${c.unit}</span>` : ''}</div>
+          <div class="lbl">${c.label}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="layout">
+      <div class="meta-panel">
+        <div class="preview">
+          <div class="no-prev">📄 Drawing preview</div>
+        </div>
+        <div class="meta-body">
+          <div class="section-lbl">Title block</div>
+          <dl class="meta-grid">
+            <dt>Drawing No.</dt><dd>${metaVal(m.drawing_no)}</dd>
+            <dt>Rev.</dt><dd>${metaVal(m.revision)}</dd>
+            <dt>Line No.</dt><dd colspan="3">${metaVal(m.line_number)}</dd>
+            <dt>NPS</dt><dd>${metaVal(m.nps)}</dd>
+            <dt>Material Cl.</dt><dd>${metaVal(m.material_class)}</dd>
+            <dt>Service</dt><dd colspan="3">${metaVal(m.service)}</dd>
+          </dl>
+        </div>
+      </div>
+      <div>
+        <div class="table-wrap">
+          <div style="overflow-x:auto">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th><th>Category</th><th>Description</th>
+                  <th>NPS</th><th>Sched/Class</th><th>Material</th>
+                  <th>End</th><th style="text-align:right">Qty</th><th>Unit</th><th style="text-align:center">Conf.</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        </div>
+        <p style="font-size:11px;color:#9AA5AD;margin-top:8px">
+          Gasket and bolt-set rows marked "Derived" were computed server-side (1 each per flanged joint).
+          Confidence scores are the model's self-assessment — treat as triage signals, not ground truth.
+        </p>
+      </div>
+    </div>`;
+}).catch(err => {
+  document.getElementById('status').innerHTML = `<span style="color:#B4472E">⚠ Failed to load: ${err.message}</span>`;
+});
+</script>
+</body>
+</html>

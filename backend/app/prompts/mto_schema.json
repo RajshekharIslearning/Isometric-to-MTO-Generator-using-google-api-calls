@@ -1,0 +1,42 @@
+{
+  "type": "object",
+  "properties": {
+    "drawing_meta": {
+      "type": "object",
+      "properties": {
+        "drawing_no": {"type": ["string", "null"]},
+        "revision": {"type": ["string", "null"]},
+        "line_number": {"type": ["string", "null"]},
+        "nps": {"type": ["string", "null"]},
+        "material_class": {"type": ["string", "null"]},
+        "service": {"type": ["string", "null"]}
+      },
+      "required": ["drawing_no", "revision", "line_number", "nps", "material_class", "service"]
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item_no": {"type": "integer"},
+          "category": {
+            "type": "string",
+            "enum": ["PIPE", "FITTING", "FLANGE", "VALVE", "GASKET", "BOLT", "SUPPORT", "OTHER"]
+          },
+          "description": {"type": "string"},
+          "size_nps": {"type": ["string", "null"]},
+          "schedule_rating": {"type": ["string", "null"]},
+          "material_spec": {"type": ["string", "null"]},
+          "end_type": {"type": ["string", "null"]},
+          "quantity": {"type": "number"},
+          "unit": {"type": "string"},
+          "length_m": {"type": ["number", "null"]},
+          "confidence": {"type": "number"},
+          "remarks": {"type": ["string", "null"]}
+        },
+        "required": ["item_no", "category", "description", "quantity", "unit"]
+      }
+    }
+  },
+  "required": ["drawing_meta", "items"]
+}
