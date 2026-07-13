@@ -30,10 +30,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Serve screenshots and demo HTML at /static (used for local demos/screenshots)
-_SCREENSHOTS_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "..", "screenshots")
-if os.path.isdir(_SCREENSHOTS_DIR):
-    app.mount("/static", StaticFiles(directory=_SCREENSHOTS_DIR), name="static")
 
 # In-memory store so the CSV endpoint can look results up by job_id without
 # a database. Fine for an assessment/demo; would move to Redis/DB otherwise.
