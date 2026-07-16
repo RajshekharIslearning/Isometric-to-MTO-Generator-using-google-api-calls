@@ -18,7 +18,7 @@ from typing import Any
 
 logger = logging.getLogger("mto_app")
 
-MODEL_NAME = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+MODEL_NAME = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
 _PROMPT_PATH = Path(__file__).parent.parent / "prompts" / "extract_prompt.txt"
 
 
