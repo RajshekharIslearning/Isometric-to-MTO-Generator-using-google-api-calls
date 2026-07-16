@@ -30,11 +30,59 @@ def _load_prompt() -> str:
     return _PROMPT_PATH.read_text(encoding="utf-8")
 
 
+from pydantic import BaseModel
+from enum import Enum
+
+class ExtCategory(str, Enum):
+    PIPE = "PIPE"
+    FITTING = "FITTING"
+    FLANGE = "FLANGE"
+    VALVE = "VALVE"
+    GASKET = "GASKET"
+    BOLT = "BOLT"
+    SUPPORT = "SUPPORT"
+    OTHER = "OTHER"
+
+class ExtDrawingMeta(BaseModel):
+    drawing_no: str | None
+    revision: str | None
+    line_number: str | None
+    nps: str | None
+    material_class: str | None
+    service: str | None
+
+class ExtMTOItem(BaseModel):
+    item_no: int
+    category: ExtCategory
+    description: str
+    size_nps: str | None
+    schedule_rating: str | None
+    material_spec: str | None
+    end_type: str | None
+    quantity: float
+    unit: str | None
+    length_m: float | None
+    confidence: float | None
+    remarks: str | None
+
+class ExtSummary(BaseModel):
+    total_pipe_length_m: float
+    fittings: int
+    flanges: int
+    valves: int
+    gaskets: int
+    bolt_sets: int
+    field_welds: int
+
+class ExtMTOResponse(BaseModel):
+    drawing_meta: ExtDrawingMeta
+    items: list[ExtMTOItem]
+    summary: ExtSummary
+
 def _extract_with_new_sdk(api_key: str, image_png_bytes: bytes) -> dict[str, Any]:
     """Use the google-genai SDK (v1.x+)."""
     from google import genai
     from google.genai import types
-    from app.models import MTOResponse
 
     client = genai.Client(api_key=api_key)
 
@@ -46,7 +94,7 @@ def _extract_with_new_sdk(api_key: str, image_png_bytes: bytes) -> dict[str, Any
         ],
         config=types.GenerateContentConfig(
             response_mime_type="application/json",
-            response_schema=MTOResponse,
+            response_schema=ExtMTOResponse,
             temperature=0.1,
         ),
     )
@@ -56,7 +104,6 @@ def _extract_with_new_sdk(api_key: str, image_png_bytes: bytes) -> dict[str, Any
 def _extract_with_legacy_sdk(api_key: str, image_png_bytes: bytes) -> dict[str, Any]:
     """Use the legacy google-generativeai SDK (v0.x)."""
     import google.generativeai as genai
-    from app.models import MTOResponse
 
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel(MODEL_NAME)
@@ -68,10 +115,11 @@ def _extract_with_legacy_sdk(api_key: str, image_png_bytes: bytes) -> dict[str, 
         ],
         generation_config={
             "response_mime_type": "application/json",
-            "response_schema": MTOResponse,
+            "response_schema": ExtMTOResponse,
             "temperature": 0.1,
         },
     )
+
     return json.loads(response.text)
 
 
