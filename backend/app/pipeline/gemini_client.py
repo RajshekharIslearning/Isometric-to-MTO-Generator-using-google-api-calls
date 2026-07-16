@@ -19,17 +19,16 @@ from pydantic import BaseModel
 
 logger = logging.getLogger("mto_app")
 
-# Primary model from env var; if not set, we try a list of fallbacks.
-_PRIMARY_MODEL = os.environ.get("GEMINI_MODEL", "")
+# Primary model from env var; if not set, defaults to gemini-2.5-flash.
+_PRIMARY_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
 
-# Ordered list of models to attempt — stops at first success.
+# Ordered fallback list — stops at first success.
+# Only models confirmed available for this API key.
 _MODEL_FALLBACK_ORDER = [
     "gemini-2.5-flash",
     "gemini-2.0-flash",
     "gemini-2.0-flash-lite",
-    "gemini-1.5-flash",
-    "gemini-1.5-flash-latest",
-    "gemini-1.5-pro",
+    "gemini-2.5-flash-lite",
 ]
 
 _PROMPT_PATH = Path(__file__).parent.parent / "prompts" / "extract_prompt.txt"
