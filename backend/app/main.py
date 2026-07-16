@@ -43,6 +43,22 @@ def health():
     return {"status": "ok"}
 
 
+@app.get("/api/gemini-test")
+def gemini_test():
+    """Diagnostic endpoint: lists available Gemini models for the configured API key."""
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        return {"error": "GEMINI_API_KEY is not set"}
+    try:
+        from google import genai
+        client = genai.Client(api_key=api_key)
+        models = [m.name for m in client.models.list()]
+        generate_models = [m for m in models if "generateContent" in (getattr(client.models.get(model=m), "supported_actions", []) or [])]
+        return {"api_key_set": True, "available_models": models[:20]}
+    except Exception as e:
+        return {"api_key_set": True, "error": str(e)}
+
+
 @app.post("/api/extract")
 async def extract(file: UploadFile = File(...)):
     raw = await file.read()
