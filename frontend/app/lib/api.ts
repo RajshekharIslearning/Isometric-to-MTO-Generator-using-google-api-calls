@@ -1,6 +1,12 @@
 import type { MTOResponse } from "./types";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+// In production the build-time env var is preferred; fall back to the live
+// Render deployment so the hosted Vercel app always reaches the real backend.
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  (typeof window !== "undefined" && window.location.hostname !== "localhost"
+    ? "https://isometric-mto-backend.onrender.com"
+    : "http://localhost:8000");
 
 export class ApiRequestError extends Error {
   status?: number;
