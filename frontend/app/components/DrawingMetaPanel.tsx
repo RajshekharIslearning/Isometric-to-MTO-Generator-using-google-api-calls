@@ -3,7 +3,7 @@ import type { DrawingMeta } from "../lib/types";
 
 interface MetaFieldProps {
   label: string;
-  value: string | null;
+  value: string | null | undefined;
   span?: boolean;
   title?: string;
 }
